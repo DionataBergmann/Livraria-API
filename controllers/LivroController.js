@@ -8,11 +8,6 @@ module.exports = {
   // destroy: exclusão
 
   async index(req, res) {
-    //const carros = await knex("carros").orderBy("id", "desc");
-    
-    // const carros = await knex("carros")
-    //    .join("marcas", "carros.marca_id", "=", "marcas.id")
-    //    .orderBy("carros.id", "desc");
 
     const livros = await knex
       .select("l.id", "l.titulo", "a.nome as autor", "l.ano", "l.preco", "l.foto")
@@ -40,4 +35,24 @@ module.exports = {
       res.status(400).json({ erro: error.message });
     }
   },
+
+   //testando pesquisa com erro
+  
+
+  async filter(req, res){
+    const palavra = req.params.palavra
+      try{
+        const dados = await knex('livros')
+          .where('titulo', 'like', `%${palavra}%`)
+          .orWhere('autor_id', 'like', `%${palavra}%`)
+          .orWhere('ano', 'like', `%${palavra}%`)
+          .select("l.id", "l.titulo", "a.nome as autor", "l.ano")
+          .from("livros as l")
+          .leftJoin("autor as a", "l.autor_id", "a.id")
+          .orderBy("l.id", "desc");
+        res.status(200).json(dados);
+      }catch(error){
+        res.status(400).json({erro: "Erro na Pesquisa"})
+      }
+  }
 };
