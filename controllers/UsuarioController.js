@@ -32,9 +32,6 @@ module.exports = {
       return
     }
 
-
-
-
     const hash = bcrypt.hashSync(senha, 10);
 
     try {
@@ -44,6 +41,32 @@ module.exports = {
       res.status(400).json({ erro: error.message });
     }
   },
+
+  async update(req,res){
+  const id = req.params.id;
+  const {senha} = req.body;
+
+  try {
+   await knex("usuarios").update({senha}).where({id})
+    res.status(201).json("Senha atualizada");
+  } catch (error) {
+    res.status(400).json({ erro: error.message });
+  }
+},
+
+async destroy(req,res){
+  const id = req.params.id;
+
+  try {
+   await knex("usuarios").del().where({id})
+    res.status(201).json({ok:1,msg:"User Deletado"});
+  } catch (error) {
+    res.status(400).json({ erro: error.message });
+      }
+  },
+
+
+      //LOGIN
 
   async login (req, res){
       const {email, senha} = req.body;
@@ -69,9 +92,9 @@ module.exports = {
           {expiresIn:"1h"}
           );
 
-          res.status(200).json({token})
+          res.status(200).json({token, user: dados[0].nome})
         }else{
-          res.status(400).json({erro:"Login/senha incorretos"})
+          res.status(200).json({erro:"Login/senha incorretos"})
         }
 
       }catch(error){
